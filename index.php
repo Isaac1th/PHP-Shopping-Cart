@@ -1,11 +1,50 @@
 <?php
 
+// start session
+session_start();
+
 require_once ('./php/Database.php');
 require_once ('./php/component.php');
 
-
 // Create instance of Database class
 $database = new Database(dbName:"ProductDB", tableName:"ProductTable", password:"", serverName:"localhost", userName:"root");
+
+if (isset($_POST['add'])){
+    // print_r($_POST['product_id']);
+
+    if (isset($_SESSION['cart'])){
+
+        $item_array_id = array_column($_SESSION['cart'], "product_id");
+        // print_r($item_array_id);
+
+        // print_r($_SESSION['cart']);
+
+        if (in_array($_POST['product_id'], $item_array_id)){
+            echo "<script>alert('product is already in  the cart!')</script>";
+            echo "<script>window.location = 'index.php</script>";
+        } else {
+
+            $count = count($_SESSION['cart']);
+            $item_array = array(
+                'product_id' => $_POST['product_id']
+            );
+
+            $_SESSION['cart'][$count] = $item_array;
+            // print_r($_SESSION['cart']);
+        }
+
+    } else {
+
+        $item_array = array(
+            'product_id' => $_POST['product_id']
+        );
+
+        // Create new session variable
+        $_SESSION['cart'][0] = $item_array;
+        print_r($_SESSION['cart']);
+
+    }
+}
 
 ?>
 
@@ -25,13 +64,15 @@ $database = new Database(dbName:"ProductDB", tableName:"ProductTable", password:
 </head>
 <body>
 
+<?php require_once("./php/header.php"); ?>
+
 <div class="container">
     <div class="row text-center py-5">
         <?php 
-            component(productName:"Product1", productPrice:'$599', productImg: "./upload/product1.png");
-            component(productName:"Product2", productPrice:'$99', productImg: "./upload/product2.png");
-            component(productName:"Product3", productPrice:'$599', productImg: "./upload/product3.png");
-            component(productName:"Product4", productPrice:'$799', productImg: "./upload/product4.png");
+            $result = $database->getData();
+            while ($row = mysqli_fetch_assoc($result)){
+                component($row['product_name'], $row['product_price'], $row['product_image'], $row['id']);
+            }
         ?>
     </div>
 </div>

@@ -1,0 +1,6 @@
+{
+  "require": {
+    "vlucas/phpdotenv": "^5.4",
+    "composer/composer": "^2.3"
+  }
+}
